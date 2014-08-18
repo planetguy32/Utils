@@ -1,4 +1,4 @@
-package me.planetguy.core.block;
+package me.planetguy.lib.block;
 
 import java.util.HashMap;
 import java.util.List;

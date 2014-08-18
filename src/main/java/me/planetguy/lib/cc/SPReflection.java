@@ -1,4 +1,4 @@
-package me.planetguy.core.cc;
+package me.planetguy.lib.cc;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

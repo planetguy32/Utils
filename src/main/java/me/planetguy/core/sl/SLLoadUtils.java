@@ -1,4 +1,4 @@
-package me.planetguy.core.simpleLoader;
+package me.planetguy.core.sl;
 
 public class SLLoadUtils {
 

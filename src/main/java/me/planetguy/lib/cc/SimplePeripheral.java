@@ -1,4 +1,4 @@
-package me.planetguy.core.cc;
+package me.planetguy.lib.cc;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -55,20 +55,17 @@ public class SimplePeripheral implements IPeripheral{
 
 	@Override
 	public void attach(IComputerAccess computer) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void detach(IComputerAccess computer) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public boolean equals(IPeripheral other) {
-		// TODO Auto-generated method stub
-		return false;
+		return other instanceof SimplePeripheral && ((SimplePeripheral)other).target==target;
 	}
 
 }

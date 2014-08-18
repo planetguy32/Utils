@@ -1,4 +1,4 @@
-package me.planetguy.core.simpleLoader;
+package me.planetguy.core.sl;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -13,11 +13,13 @@ import java.util.List;
 
 import javax.swing.text.html.parser.Entity;
 
+import scala.actors.threadpool.Arrays;
 import me.planetguy.util.Debug;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -354,12 +356,17 @@ public class SimpleLoader {
 		return cnames.toArray(new Class[0]);
 	}
 
-	public void setCreativeTab(CreativeTabs tab, String[] blacklist) {
+	public void setupCreativeTab(String tabName, String[] blacklist, ItemStack... possibleRepresentativeItems) {
+		CreativeTab tab=new CreativeTab(tabName, possibleRepresentativeItems);
+		HashSet<String> blacklistSet=new HashSet<String>();
+		blacklistSet.addAll(Arrays.asList(blacklist));
 		for(Block i:this.blocksMade){
-			i.setCreativeTab(tab);
+			if(!blacklistSet.contains(SLLoadUtils.getModuleName(i.getClass())))
+				i.setCreativeTab(tab);
 		}
 		for(Item i:this.itemsMade){
-			i.setCreativeTab(tab);
+			if(!blacklistSet.contains(SLLoadUtils.getModuleName(i.getClass())))
+				i.setCreativeTab(tab);
 		}
 	}
 }

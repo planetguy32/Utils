@@ -1,4 +1,4 @@
-package me.planetguy.core.simpleLoader;
+package me.planetguy.core.sl;
 
 /**Used to make modules with custom loading behavior, for example, blocks with GUIs that need registering.
  * 
