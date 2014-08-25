@@ -8,9 +8,11 @@ import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
 
-public class ASMFixesModContainer extends DummyModContainer{
+public class PlanetguyCoreModContainer extends DummyModContainer{
 
-	public ASMFixesModContainer(){
+	
+	
+	public PlanetguyCoreModContainer(){
             super(new ModMetadata());
             ModMetadata md = super.getMetadata();
             md.modId = "planetguy_CoreLoadingPlugin";

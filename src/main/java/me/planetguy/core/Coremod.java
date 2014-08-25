@@ -12,12 +12,12 @@ public class Coremod implements IFMLLoadingPlugin {
 	
 	@Override
 	public String[] getASMTransformerClass() {
-		return new String[]{SLClassDiscoverer.class.getCanonicalName()};
+		return new String[]{SLClassDiscoverer.class.getCanonicalName(), PlanetguyAT.class.getCanonicalName()};
 	}
 
 	@Override
 	public String getModContainerClass() {
-		return ASMFixesModContainer.class.getCanonicalName();
+		return PlanetguyCoreModContainer.class.getCanonicalName();
 	}
 
 	@Override

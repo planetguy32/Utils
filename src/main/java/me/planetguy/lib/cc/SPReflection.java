@@ -3,6 +3,8 @@ package me.planetguy.lib.cc;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import me.planetguy.lib.api.SPMethod;
+
 public class SPReflection {
 	
 	public final Class target;

@@ -1,4 +1,4 @@
-package me.planetguy.lib.cc;
+package me.planetguy.lib.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
