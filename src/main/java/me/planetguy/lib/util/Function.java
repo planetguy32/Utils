@@ -1,4 +1,4 @@
-package me.planetguy.util;
+package me.planetguy.lib.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,6 @@ public class Function {
 		try{
 			List<Future<TOut>> futures=threads.invokeAll(tasks);
 			ArrayList<TOut> results=new ArrayList<TOut>();
-			threads.awaitTermination(9001, TimeUnit.DAYS);
 			for(Future<TOut> out:futures){
 				results.add(out.get());
 			}

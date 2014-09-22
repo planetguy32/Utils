@@ -1,4 +1,4 @@
-package me.planetguy.util ;
+package me.planetguy.lib.util ;
 
 import java.util.Arrays;
 
@@ -11,7 +11,7 @@ public abstract class Debug
 	
 	private static void dbg_delegate(Object o){
 		StackTraceElement[] trace=Thread.currentThread().getStackTrace();
-		System.out.println(trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "")+"@"+trace[2].getLineNumber()+"   "+o);
+		System.out.println(trace[3].getClassName().replaceAll("[a-zA-Z]*\\.", "")+"@"+trace[3].getLineNumber()+"   "+o);
 		//if(Configuration.Debug.verbose)	log.debug(m,o);
 	}
 	
@@ -23,19 +23,21 @@ public abstract class Debug
 		dbg(t.toString());
 	}
 	
-	public void dump(Object o){
+	public static String dump(Object o){
+		String ret="";
 		if(o==null){
-			dbg_delegate("NULL");
+			ret+= ("NULL");
 		}else{
-			dbg_delegate(o.getClass());
+			ret+=(o.getClass());
 			for(java.lang.reflect.Field f:o.getClass().getFields()){
 				try {
-					dbg_delegate(f.getName()+":   "+f.get(o));
+					ret+=(f.getName()+":   "+f.get(o));
 				} catch (IllegalArgumentException e) {
 				} catch (IllegalAccessException e) {
 				}
 			}
 		}
+		return ret;
 		
 	}
 	
