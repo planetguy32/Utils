@@ -11,7 +11,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = LibProperties.modID, version = "1.3")
+@Mod(modid = LibProperties.modID, version = "1.4")
 public class PlanetguyLib {
 
 	@Instance(LibProperties.modID)
