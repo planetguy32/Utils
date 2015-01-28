@@ -6,7 +6,6 @@ import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import me.planetguy.lib.util.LibProperties;
 import me.planetguy.lib.util.Reflection;
-import me.planetguy.remaininmotion.core.Config;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
