@@ -28,7 +28,7 @@ public class PlanetguyLib {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent pie) {
 		Reflection.init();
-		configFolder = new File(pie.getModConfigurationDirectory().getAbsoluteFile()+"plItemRestrict");
+		configFolder = new File(pie.getModConfigurationDirectory().getAbsoluteFile()+File.separator+"plItemRestrict");
 		configFolder.mkdir();
 		Configuration cfg=new Configuration(pie.getSuggestedConfigurationFile());
 		
