@@ -5,9 +5,9 @@ import net.minecraft.world.World;
 
 public class Blacklist {
 
-	public java.util.HashSet<Block>		BlacklistedIds				= new java.util.HashSet<Block>();
+	private java.util.HashSet<Block>		BlacklistedIds				= new java.util.HashSet<Block>();
 
-	public java.util.HashSet<BlockInt>	BlacklistedIdAndMetaPairs	= new java.util.HashSet<BlockInt>();
+	private java.util.HashSet<BlockInt>	BlacklistedIdAndMetaPairs	= new java.util.HashSet<BlockInt>();
 
 	public void blacklist(Block Id) {
 		BlacklistedIds.add(Id);
