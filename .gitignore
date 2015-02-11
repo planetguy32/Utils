@@ -10,3 +10,31 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+#eclipse
+.project
+.externalToolBuilders
+.classpath
+.metadata
+org.*
+bin
+.settings
+.cache
+
+#idea
+*.iml
+*.ipr
+*.iws
+.idea
+out
+
+#gradle
+build
+.gradle
+gradle
+gradlew
+gradlew.bat
+
+#runtime
+run
+.gradle/gradle.log
