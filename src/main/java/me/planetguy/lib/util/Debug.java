@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.planetguy.lib.PlanetguyLib;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 
@@ -80,10 +81,8 @@ public abstract class Debug {
 							} else {
 								print("   " + f.getName() + "     " + obj);
 							}
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
+						} catch (Exception e) {
+							print(""+e);
 						}
 				}
 				c = c.getSuperclass();
@@ -98,5 +97,4 @@ public abstract class Debug {
 	public static void side() {
 		Debug.dbg_delegate(FMLCommonHandler.instance().getEffectiveSide());
 	}
-
 }
