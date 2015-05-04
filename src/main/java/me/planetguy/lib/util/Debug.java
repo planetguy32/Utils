@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 
 public abstract class Debug {
 
@@ -96,5 +97,14 @@ public abstract class Debug {
 
 	public static void side() {
 		Debug.dbg_delegate(FMLCommonHandler.instance().getEffectiveSide());
+	}
+
+	/*
+	 * Releases mouse control, so you can go use the debugger controls
+	 */
+	public static void bp() {
+		if(PlanetguyLib.doPLLogging && FMLCommonHandler.instance().getEffectiveSide()==Side.CLIENT){
+			Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+		}
 	}
 }
