@@ -5,7 +5,12 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class Lang {
 
 	public static String translate(String s) {
-		return LanguageRegistry.instance().getStringLocalization(s);
+		String res= LanguageRegistry.instance().getStringLocalization(s);
+		if(res.equals("")){
+			throw new RuntimeException("Failed to translate "+s);
+		}else{
+			return res;
+		}
 	}
 
 }

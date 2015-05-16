@@ -51,7 +51,7 @@ public class GuiHandlerPrefab implements IGuiHandler {
 		try{
 			return clientConstructors[ID].newInstance(player.inventory, world.getTileEntity(x, y, z));
 		}catch(Exception e){
-			
+			e.printStackTrace();
 		}
 		return null;
 	}

@@ -23,7 +23,7 @@ public abstract class ContainerPrefab extends Container {
     	return true;//tileEntity.isUseableByPlayer(player);
     }
 
-    private void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
+    protected void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
     	for (int i = 0; i < 3; i++) {
     		for (int j = 0; j < 9; j++) {
     			addSlotToContainer(new Slot(inventoryPlayer, j + i * 9 + 9,
