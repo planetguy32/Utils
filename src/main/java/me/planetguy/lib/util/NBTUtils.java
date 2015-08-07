@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class NBTUtils {
 	
-	static Field NBTTagCompound_map;
+	static Field NBTTagCompound_map=null;
 	
 	static {
 		init();
@@ -16,6 +16,8 @@ public class NBTUtils {
 	
 	
 	public static void init() {
+		if(NBTTagCompound_map != null)
+			return;
 		Field f=null;
 		try {
 			for(Field maybeMap:NBTTagCompound.class.getDeclaredFields()) {
@@ -33,7 +35,6 @@ public class NBTUtils {
 
 	public static void copySubTags(NBTTagCompound from, NBTTagCompound to) {
 		try {
-			init();
 			Map<String, NBTBase> map= (Map<String, NBTBase>) NBTTagCompound_map.get(from);
 			for(String s:map.keySet()) {
 				to.setTag(s, map.get(s));

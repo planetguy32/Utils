@@ -41,7 +41,7 @@ public class BlacklistDynamic extends Blacklist {
 
 		if (!Blacklist.equals("")) {
 			for (String BlacklistItem : Blacklist.split(",")) {
-				String[] BlacklistItemElements = BlacklistItem.split(":");
+				String[] BlacklistItemElements = BlacklistItem.split("@");
 
 				try {
 					if (BlacklistItemElements.length == 1) {
