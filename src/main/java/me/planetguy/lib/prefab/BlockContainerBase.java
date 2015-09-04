@@ -84,13 +84,17 @@ public class BlockContainerBase extends BlockContainer implements IPrefabBlock {
 	}
 	
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player){
-    	return new ItemStack(this, 1, world.getBlockMetadata(x, y, z));
+    	return getDrop(world.getBlockMetadata(x, y, z));
     }
     
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune){
     	ArrayList<ItemStack> stacks= new ArrayList<ItemStack>();
-    	stacks.add(new ItemStack(this, 1, metadata));
+    	stacks.add(getDrop(metadata));
     	return stacks;
+    }
+    
+    public ItemStack getDrop(int metadata) {
+    	return new ItemStack(this, 1, metadata);
     }
     
 	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)

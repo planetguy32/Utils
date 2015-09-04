@@ -34,7 +34,7 @@ public class ItemBlockBase extends ItemBlockWithMetadata {
 	public void describe(ItemStack stack, EntityPlayer player, List<String> lines) {
 		if (stack.getItemDamage() == 0) {
 			for (int i = 1; i <= countTooltipLines(); i++) {
-				lines.add(Lang.translate(block.getName() + ".tooltip." + i));
+				lines.add(Lang.translate("tile."+block.getName() + ".tooltip." + i));
 			}
 		} else {
 			for (int i = 1; i <= countTooltipLines(); i++) {
