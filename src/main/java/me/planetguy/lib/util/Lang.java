@@ -10,7 +10,7 @@ public class Lang {
 		if(res.equals("") && PlanetguyLib.doPLLogging){ //this is a debug feature
 			throw new RuntimeException("Failed to translate "+s);
 		}else{
-			return res;
+			return LanguageRegistry.instance().getStringLocalization(s, "en_US");
 		}
 	}
 
