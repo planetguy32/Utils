@@ -22,11 +22,21 @@ group= "me.planetguy" // http://maven.apache.org/guides/mini/guide-naming-conven
 archivesBaseName = "PlanetguyLib"
 
 minecraft {
-    version = "1.7.10-10.13.0.1208"
+    version = "1.7.10-10.13.4.1448-1.7.10"
+}
+
+jar {
+    manifest {
+        attributes 'FMLAT': 'planetguyLib_at.cfg'
+    }
 }
 
 processResources
 {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
