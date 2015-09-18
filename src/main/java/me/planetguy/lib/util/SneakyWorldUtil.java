@@ -97,12 +97,12 @@ public abstract class SneakyWorldUtil {
                     {
                         if (y >= heightMapAtTarget)
                         {
-                            chunk.relightBlock(chunkX, y + 1, chunkZ);
+                        	relightChunkBlock(chunk, chunkX, y, chunkZ);
                         }
                     }
                     else if (y == heightMapAtTarget - 1)
                     {
-                        chunk.relightBlock(chunkX, y, chunkZ);
+                    	relightChunkBlock(chunk, chunkX, y, chunkZ);
                     }
 
                     if (newOpacity != oldOpacity && (newOpacity < oldOpacity || chunk.getSavedLightValue(EnumSkyBlock.Sky, chunkX, y, chunkZ) > 0 || chunk.getSavedLightValue(EnumSkyBlock.Block, chunkX, y, chunkZ) > 0))
@@ -157,6 +157,18 @@ public abstract class SneakyWorldUtil {
 
     public static void refreshBlock(World world, int X, int Y, int Z, Block OldId, Block NewId) {
         notifyBlocks(world, X, Y, Z, OldId, NewId);
+    }
+    
+    public static void relightBlock(World w, int x, int y, int z) {
+    	w.getChunkFromBlockCoords(x, z).relightBlock(x&15, y, z&15);
+    }
+    
+    public static void relightChunkBlock(Chunk c, int cx, int y, int cz) {
+    	//c.relightBlock(cx, y, cz);
+    }
+    
+    public static void fixLighting(Chunk c, int cx, int y, int cz) {
+    	
     }
 
 }
