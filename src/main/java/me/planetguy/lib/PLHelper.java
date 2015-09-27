@@ -128,8 +128,16 @@ public class PLHelper {
 		}
 		return null;
 	}
-
+	
 	public Object load(Class c, HashMap<String, IPrefabItem> content) {
+		Object o=loadImpl(c,content);
+		if(o instanceof IPrefabItem) {
+			process((IPrefabItem)o);
+		}
+		return o;
+	}
+
+	public Object loadImpl(Class c, HashMap<String, IPrefabItem> content) {
 		if (!shouldLoad(c)) { return null; }
 		if (ItemBase.class.isAssignableFrom(c)) {
 			return loadItem(c, content);
@@ -154,5 +162,8 @@ public class PLHelper {
 		cfg.save();
 		return b;
 	}
+	
+	//Override this to capture items
+	public void process(IPrefabItem i) {}
 
 }
