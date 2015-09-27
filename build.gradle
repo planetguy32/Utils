@@ -23,12 +23,30 @@ archivesBaseName = "PlanetguyLib"
 
 minecraft {
     version = "1.7.10-10.13.4.1448-1.7.10"
+    replace '${version}', project.version
 }
 
 jar {
     manifest {
         attributes 'FMLAT': 'planetguyLib_at.cfg'
     }
+}
+
+def root = project.projectDir.parentFile
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.java
+    from new File(root, "dev")
+    classifier = 'sources'
+}
+
+task devJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
+artifacts {
+    archives sourceJar, devJar
 }
 
 processResources
