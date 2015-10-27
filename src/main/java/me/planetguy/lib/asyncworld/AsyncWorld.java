@@ -33,6 +33,7 @@ public class AsyncWorld {
             	if(chunk != null) {
             		return chunk.getBlock(x & 15, y, z & 15);
             	}
+            	Block.getBlockById(0);
             }
             catch (Throwable throwable)
             {
@@ -45,6 +46,32 @@ public class AsyncWorld {
         }
         return null;
 	}
+	
+    public int getBlockMetadata(World w, int p_72805_1_, int p_72805_2_, int p_72805_3_)
+    {
+        if (p_72805_1_ >= -30000000 && p_72805_3_ >= -30000000 && p_72805_1_ < 30000000 && p_72805_3_ < 30000000)
+        {
+            if (p_72805_2_ < 0)
+            {
+                return 0;
+            }
+            else if (p_72805_2_ >= 256)
+            {
+                return 0;
+            }
+            else
+            {
+                Chunk chunk = getChunk(w, p_72805_1_, p_72805_3_);
+                p_72805_1_ &= 15;
+                p_72805_3_ &= 15;
+                return chunk.getBlockMetadata(p_72805_1_, p_72805_2_, p_72805_3_);
+            }
+        }
+        else
+        {
+            return 0;
+        }
+    }
 	
 	public static TileEntity getTileEntity(World w, int x, int y, int z) {
 		Chunk c=getChunk(w, x, z);
@@ -60,11 +87,26 @@ public class AsyncWorld {
         // TODO synchronize on the world and load the area?
     	ChunkProviderServer prov=(ChunkProviderServer)w.getChunkProvider();
     	if(prov != null) {
-    		//hashmap get -> pure
-    		return (Chunk)prov.loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(x, z));
+    		//hashmap get is pure
+    		Chunk c = (Chunk)prov.loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(x, z));
+    		
+    		/* 
+    		if(c!=null)
+    			synchronized(w) {
+    				return prov.provideChunk(x, z);
+    			}
+    		else
+    		*/
+    			return c;
     	} else {
     		return null;
     	}
+	}
+	
+	public static void setBlock(World w, int x, int y, int z) {
+		Chunk c=getChunk(w, x, z);
+		//TODO find my sanity; I think I left it somewhere near here...
+		
 	}
 
 }
