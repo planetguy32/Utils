@@ -11,6 +11,11 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 public abstract class SneakyWorldUtil {
 
     public static boolean setBlock(World world, int x, int y, int z, Block newBlock, int meta) {
+        return setBlock(world, x, y, z, newBlock, meta, false);
+    }
+
+    public static boolean setBlock(World world, int x, int y, int z, Block newBlock, int meta, boolean skipUpdateClient) {
+        world.restoringBlockSnapshots=true;
         int chunkX = x & 0xF;
         int chunkZ = z & 0xF;
 
@@ -61,9 +66,8 @@ public abstract class SneakyWorldUtil {
                 TileEntity te = chunk.getTileEntityUnsafe(chunkX & 0x0F, y, chunkZ & 0x0F);
                 if (te != null && te.shouldRefresh(oldBlock, chunk.getBlock(chunkX & 0x0F, y, chunkZ & 0x0F), metadata, chunk.getBlockMetadata(chunkX & 0x0F, y, chunkZ & 0x0F), world, x, y, z))
                 {
-                	world.restoringBlockSnapshots=true; //suppress item drops from TileEntity.invalidate()
+                	 //suppress item drops from TileEntity.invalidate()
                     chunk.removeTileEntity(chunkX & 0x0F, y, chunkZ & 0x0F);
-                    world.restoringBlockSnapshots=false;
                 }
             }
             else if (oldBlock.hasTileEntity(metadata))
@@ -71,43 +75,36 @@ public abstract class SneakyWorldUtil {
                 TileEntity te = chunk.getTileEntityUnsafe(chunkX & 0x0F, y, chunkZ & 0x0F);
                 if (te != null && te.shouldRefresh(oldBlock, newBlock, metadata, meta, world, x, y, z))
                 {
-                    world.restoringBlockSnapshots=true; //suppress item drops from TileEntity.invalidate()
                     world.removeTileEntity(x, y, z);
-                    world.restoringBlockSnapshots=false;
                 }
             }
 
             if (xbs.getBlockByExtId(chunkX, y & 15, chunkZ) != newBlock)
             {
+                world.restoringBlockSnapshots=false;
                 return false;
             }
             else
             {
                 xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta);
 
-                if (heightMapChanged)
-                {
-                    chunk.generateSkylightMap();
-                }
-                else
-                {
-                    int newOpacity = newBlock.getLightOpacity(world, x, y, z);
+                if(!skipUpdateClient) {
+                    if (heightMapChanged) {
+                        chunk.generateSkylightMap();
+                    } else {
+                        int newOpacity = newBlock.getLightOpacity(world, x, y, z);
 
-                    if (newOpacity > 0)
-                    {
-                        if (y >= heightMapAtTarget)
-                        {
-                        	relightChunkBlock(chunk, chunkX, y, chunkZ);
+                        if (newOpacity > 0) {
+                            if (y >= heightMapAtTarget) {
+                                relightChunkBlock(chunk, chunkX, y, chunkZ);
+                            }
+                        } else if (y == heightMapAtTarget - 1) {
+                            relightChunkBlock(chunk, chunkX, y, chunkZ);
                         }
-                    }
-                    else if (y == heightMapAtTarget - 1)
-                    {
-                    	relightChunkBlock(chunk, chunkX, y, chunkZ);
-                    }
 
-                    if (newOpacity != oldOpacity && (newOpacity < oldOpacity || chunk.getSavedLightValue(EnumSkyBlock.Sky, chunkX, y, chunkZ) > 0 || chunk.getSavedLightValue(EnumSkyBlock.Block, chunkX, y, chunkZ) > 0))
-                    {
-                        chunk.propagateSkylightOcclusion(chunkX, chunkZ);
+                        if (newOpacity != oldOpacity && (newOpacity < oldOpacity || chunk.getSavedLightValue(EnumSkyBlock.Sky, chunkX, y, chunkZ) > 0 || chunk.getSavedLightValue(EnumSkyBlock.Block, chunkX, y, chunkZ) > 0)) {
+                            chunk.propagateSkylightOcclusion(chunkX, chunkZ);
+                        }
                     }
                 }
 
@@ -126,10 +123,13 @@ public abstract class SneakyWorldUtil {
 
                 chunk.isModified = true;
 
-                world.func_147451_t(x, y, z);
+                if(!skipUpdateClient) {
+                    world.func_147451_t(x, y, z);
 
-                if(chunk.func_150802_k()) world.markBlockForUpdate(x, y, z);
+                    if (chunk.func_150802_k()) world.markBlockForUpdate(x, y, z);
+                }
 
+                world.restoringBlockSnapshots=false;
                 return true;
             }
         }
