@@ -108,4 +108,11 @@ public abstract class Debug {
 			Debug.dbg_delegate("Ready for debugging!");
 		}
 	}
+	
+	//Drops the pointer lock and returns true.
+	//Suitable for use as  a conditional breakpoint condition.
+	public static boolean dropMouse(){
+		Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+		return true;
+	}
 }
