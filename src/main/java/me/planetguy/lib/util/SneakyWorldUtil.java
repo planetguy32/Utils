@@ -11,18 +11,155 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 public abstract class SneakyWorldUtil {
 
     public static boolean setBlock(World world, int x, int y, int z, Block newBlock, int meta) {
-        return setBlock(world, x, y, z, newBlock, meta, false);
+        return setBlock(world, x, y, z, newBlock, meta, false, false);
     }
 
     public static boolean setBlock(World world, int x, int y, int z, Block newBlock, int meta, boolean skipUpdateClient) {
+        return setBlock(world, x, y, z, newBlock, meta, skipUpdateClient, false);
+    }
+
+    // For ease of method profiling, I am splitting this into multple parts
+    public static boolean setBlock(World world, int x, int y, int z, Block newBlock, int meta, boolean skipUpdateClient, boolean skipUpdateLightingAndHeightmaps) {
+        world.restoringBlockSnapshots = true;
+        int chunkX = x & 0xF;
+        int chunkZ = z & 0xF;
+
+        Chunk chunk = world.getChunkFromBlockCoords(x, z);
+
+        if (chunk == null)
+            return false;
+
+        int xzCombinedPosition = chunkZ << 4 | chunkX;
+
+        if (y >= chunk.precipitationHeightMap[xzCombinedPosition] - 1) {
+            chunk.precipitationHeightMap[xzCombinedPosition] = -999;
+        }
+
+        int heightMapAtTarget = chunk.heightMap[xzCombinedPosition];
+        Block oldBlock = chunk.getBlock(chunkX, y, chunkZ);
+        int metadata = chunk.getBlockMetadata(chunkX, y, chunkZ);
+
+        if (oldBlock == newBlock && metadata == meta) {
+            return false;
+        } else {
+            ExtendedBlockStorage xbs = chunk.storageArrays[y >> 4];
+            boolean heightMapChanged = false;
+
+            if (xbs == null) {
+                if (newBlock == Blocks.air) {
+                    return false;
+                }
+
+                xbs = chunk.storageArrays[y >> 4] = new ExtendedBlockStorage(y >> 4 << 4, !world.provider.hasNoSky);
+            }
+            heightMapChanged = y >= heightMapAtTarget;
+
+            int oldOpacity = 255;
+            if(!skipUpdateLightingAndHeightmaps) oldBlock.getLightOpacity(world, x, y, z);
+
+            xbs.func_150818_a(chunkX, y & 15, chunkZ, newBlock);
+            xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta);
+
+            if (!world.isRemote) {
+                // After breakBlock a phantom TE might have been created with incorrect meta. This attempts to kill that phantom TE so the normal one can be create properly later
+                TileEntity te = chunk.getTileEntityUnsafe(chunkX & 0x0F, y, chunkZ & 0x0F);
+                if (te != null && te.shouldRefresh(oldBlock, chunk.getBlock(chunkX & 0x0F, y, chunkZ & 0x0F), metadata, chunk.getBlockMetadata(chunkX & 0x0F, y, chunkZ & 0x0F), world, x, y, z)) {
+                    //suppress item drops from TileEntity.invalidate()
+                    chunk.removeTileEntity(chunkX & 0x0F, y, chunkZ & 0x0F);
+                }
+            } else if (oldBlock.hasTileEntity(metadata)) {
+                TileEntity te = chunk.getTileEntityUnsafe(chunkX & 0x0F, y, chunkZ & 0x0F);
+                if (te != null && te.shouldRefresh(oldBlock, newBlock, metadata, meta, world, x, y, z)) {
+                    world.removeTileEntity(x, y, z);
+                }
+            }
+
+            if (xbs.getBlockByExtId(chunkX, y & 15, chunkZ) != newBlock) {
+                world.restoringBlockSnapshots = false;
+                return false;
+            } else {
+                xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta);
+
+                if (!skipUpdateLightingAndHeightmaps) {
+                    updateLightAndHeightmaps(world, chunk, x, y, z, newBlock, chunkX, chunkZ, oldOpacity, heightMapAtTarget, heightMapChanged);
+                }
+
+                TileEntity tileentity;
+
+                if (newBlock.hasTileEntity(meta)) {
+                    tileentity = chunk.func_150806_e(chunkX, y, chunkZ);
+
+                    if (tileentity != null) {
+                        tileentity.updateContainingBlockInfo();
+                        tileentity.blockMetadata = meta;
+                    }
+                }
+
+                chunk.isModified = true;
+
+                if (!skipUpdateClient) {
+                    updateBlockRendering(world, x, y, z, chunk);
+                }
+
+                world.restoringBlockSnapshots = false;
+                return true;
+            }
+        }
+    }
+
+    public static void updateBlockRendering(World world, int x, int y, int z) {
+        Chunk chunk = world.getChunkFromBlockCoords(x,z);
+        updateBlockRendering(world, x, y, z,chunk);
+    }
+
+
+    public static void updateBlockRendering(World world, int x, int y, int z, Chunk chunk) {
+        world.func_147451_t(x, y, z);
+
+        if (chunk.func_150802_k()) world.markBlockForUpdate(x, y, z);
+    }
+
+    public static void updateLightAndHeightmaps(World world, int x, int y, int z, Block newBlock) {
+        int chunkX = x & 0xF;
+        int chunkZ = z & 0xF;
+
+        Chunk chunk = world.getChunkFromChunkCoords(chunkX,chunkZ);
+        int xzCombinedPosition = chunkZ << 4 | chunkX;
+        int oldOpacity = chunk.getBlock(chunkX, y, chunkZ).getLightOpacity(world,x,y,z);
+        int heightMapAtTarget = chunk.heightMap[xzCombinedPosition];
+        boolean heightMapChanged = heightMapChanged = y >= heightMapAtTarget;
+        updateLightAndHeightmaps(world, chunk,x,y,z,newBlock,chunkX,chunkZ,oldOpacity,heightMapAtTarget,heightMapChanged);
+    }
+
+    public static void updateLightAndHeightmaps(World world, Chunk chunk, int x, int y, int z, Block newBlock, int chunkX, int chunkZ, int oldOpacity, int heightMapAtTarget, boolean heightMapChanged) {
+        if (heightMapChanged) {
+            chunk.generateSkylightMap();
+        } else {
+            int newOpacity = newBlock.getLightOpacity(world, x, y, z);
+
+            if (newOpacity > 0) {
+                if (y >= heightMapAtTarget) {
+                    relightChunkBlock(chunk, chunkX, y, chunkZ);
+                }
+            } else if (y == heightMapAtTarget - 1) {
+                relightChunkBlock(chunk, chunkX, y, chunkZ);
+            }
+
+            if (newOpacity != oldOpacity && (newOpacity < oldOpacity || chunk.getSavedLightValue(EnumSkyBlock.Sky, chunkX, y, chunkZ) > 0 || chunk.getSavedLightValue(EnumSkyBlock.Block, chunkX, y, chunkZ) > 0)) {
+                chunk.propagateSkylightOcclusion(chunkX, chunkZ);
+            }
+        }
+    }
+
+    public static boolean setBlockWithoutTileEntity(World world, int x, int y, int z, Block newBlock, int meta, boolean skipUpdateClient, boolean skipUpdateLightingAndHeightmaps) {
         world.restoringBlockSnapshots=true;
         int chunkX = x & 0xF;
         int chunkZ = z & 0xF;
 
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
-        
+
         if(chunk==null)
-        	return false;
+            return false;
 
         int xzCombinedPosition = chunkZ << 4 | chunkX;
 
@@ -52,13 +189,15 @@ public abstract class SneakyWorldUtil {
                 }
 
                 xbs = chunk.storageArrays[y >> 4] = new ExtendedBlockStorage(y >> 4 << 4, !world.provider.hasNoSky);
-                heightMapChanged = y >= heightMapAtTarget;
             }
+            // Facepalm...this was causing heightmap issues for a long damn time. It needs to be outside the if()
+            heightMapChanged = y >= heightMapAtTarget;
 
-            int oldOpacity = oldBlock.getLightOpacity(world, x, y, z);
+            int oldOpacity = 255;
+            if(!skipUpdateLightingAndHeightmaps) oldBlock.getLightOpacity(world, x, y, z);
 
             xbs.func_150818_a(chunkX, y & 15, chunkZ, newBlock);
-            xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta); 
+            xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta);
 
             if (!world.isRemote)
             {
@@ -66,7 +205,7 @@ public abstract class SneakyWorldUtil {
                 TileEntity te = chunk.getTileEntityUnsafe(chunkX & 0x0F, y, chunkZ & 0x0F);
                 if (te != null && te.shouldRefresh(oldBlock, chunk.getBlock(chunkX & 0x0F, y, chunkZ & 0x0F), metadata, chunk.getBlockMetadata(chunkX & 0x0F, y, chunkZ & 0x0F), world, x, y, z))
                 {
-                	 //suppress item drops from TileEntity.invalidate()
+                    //suppress item drops from TileEntity.invalidate()
                     chunk.removeTileEntity(chunkX & 0x0F, y, chunkZ & 0x0F);
                 }
             }
@@ -88,52 +227,20 @@ public abstract class SneakyWorldUtil {
             {
                 xbs.setExtBlockMetadata(chunkX, y & 15, chunkZ, meta);
 
-                if(!skipUpdateClient) {
-                    if (heightMapChanged) {
-                        chunk.generateSkylightMap();
-                    } else {
-                        int newOpacity = newBlock.getLightOpacity(world, x, y, z);
-
-                        if (newOpacity > 0) {
-                            if (y >= heightMapAtTarget) {
-                                relightChunkBlock(chunk, chunkX, y, chunkZ);
-                            }
-                        } else if (y == heightMapAtTarget - 1) {
-                            relightChunkBlock(chunk, chunkX, y, chunkZ);
-                        }
-
-                        if (newOpacity != oldOpacity && (newOpacity < oldOpacity || chunk.getSavedLightValue(EnumSkyBlock.Sky, chunkX, y, chunkZ) > 0 || chunk.getSavedLightValue(EnumSkyBlock.Block, chunkX, y, chunkZ) > 0)) {
-                            chunk.propagateSkylightOcclusion(chunkX, chunkZ);
-                        }
-                    }
-                }
-
-                TileEntity tileentity;
-
-                if (newBlock.hasTileEntity(meta))
-                {
-                    tileentity = chunk.func_150806_e(chunkX, y, chunkZ);
-
-                    if (tileentity != null)
-                    {
-                        tileentity.updateContainingBlockInfo();
-                        tileentity.blockMetadata = meta;
-                    }
+                if(!skipUpdateLightingAndHeightmaps) {
+                    updateLightAndHeightmaps(world,chunk,x,y,z,newBlock,chunkX,chunkZ,oldOpacity,heightMapAtTarget,heightMapChanged);
                 }
 
                 chunk.isModified = true;
 
                 if(!skipUpdateClient) {
-                    world.func_147451_t(x, y, z);
-
-                    if (chunk.func_150802_k()) world.markBlockForUpdate(x, y, z);
+                    updateBlockRendering(world,x,y,z,chunk);
                 }
 
                 world.restoringBlockSnapshots=false;
                 return true;
             }
         }
-
     }
 
     public static void setTileEntity(World world, int X, int Y, int Z, TileEntity entity) {
