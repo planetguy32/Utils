@@ -17,7 +17,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid = LibProperties.modID, version = "1.9")
+@Mod(modid = LibProperties.modID, version = "1.10")
 public class PlanetguyLib {
 
 	@Instance(LibProperties.modID)

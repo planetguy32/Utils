@@ -112,7 +112,8 @@ public abstract class Debug {
 	//Drops the pointer lock and returns true.
 	//Suitable for use as  a conditional breakpoint condition.
 	public static boolean dropMouse(){
-		Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+			Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
 		return true;
 	}
 }

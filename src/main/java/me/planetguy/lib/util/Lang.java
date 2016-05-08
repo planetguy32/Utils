@@ -7,10 +7,13 @@ public class Lang {
 
 	public static String translate(String s) {
 		String res= LanguageRegistry.instance().getStringLocalization(s);
-		if(res.equals("") && PlanetguyLib.doPLLogging){ //this is a debug feature
-			throw new RuntimeException("Failed to translate "+s);
+		if(res.equals("")){
+			//Should we be anal about missing translations?
+			if(PlanetguyLib.doPLLogging)
+				throw new RuntimeException("Failed to translate "+s);
+			return s;
 		}else{
-			return LanguageRegistry.instance().getStringLocalization(s, "en_US");
+			return res;
 		}
 	}
 
