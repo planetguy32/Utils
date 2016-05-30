@@ -2,11 +2,11 @@ package me.planetguy.lib.util;
 
 import java.util.Iterator;
 
-public class SingleIterator implements Iterator {
+public class SingleIterator<T> implements Iterator<T>, Iterable<T> {
 
-	private Object	object;
+	private T	object;
 
-	public SingleIterator(Object o) {
+	public SingleIterator(T o) {
 		object = o;
 	}
 
@@ -16,8 +16,8 @@ public class SingleIterator implements Iterator {
 	}
 
 	@Override
-	public Object next() {
-		Object o = object;
+	public T next() {
+		T o = object;
 		object = null;
 		return o;
 	}
@@ -25,6 +25,11 @@ public class SingleIterator implements Iterator {
 	@Override
 	public void remove() {
 		object = null;
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return this;
 	}
 
 }
